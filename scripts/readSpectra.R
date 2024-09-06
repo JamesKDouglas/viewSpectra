@@ -63,19 +63,14 @@ lines(meas_1$sc_sample$wavenumbers, subtracted-meas_1$ab_no_atm_comp$data/7, typ
 # so perform a rubberband correction on the red line.
 # for that I will try to use hyperSpec
 
-# I can't get hyperSpec working. I have some simple data in two clean lists - wavelength and absorbance
-# But after a few days of trying I'm unable to get hyperSpec to make an object out of them.
-
-# The documentation is short and confused. The best plot I can get is not a real plot but just a diagonal line.
+# After a few days of trying I can see that the problem was a glaring mistake that appears twice in the hyperSpec documentation.
+# It mixes up the order of the arguments provided to new when making a spectra object.
+# I solved this by reading the code on gitHub - good warning I guess that you can't trust the docs and it's better to read the code.
 
 require(hyperSpec)
 wavenumbers <- meas_1$sc_sample$wavenumbers
 # It was a string. Make it a number I guess.
-wavenumbers <- as.numeric(wavenumbers)
-
-thismatrix <- matrix(wavenumbers, nrow = 1, ncol = 1661)
-length(subtracted)
-newmatrix <- rbind(thismatrix, c(subtracted))
+# wavenumbers <- as.numeric(wavenumbers)
 
 #Data_Frame <- data.frame (
 #  wavelengths = c(wavenumbers),
@@ -93,22 +88,6 @@ newmatrix <- rbind(thismatrix, c(subtracted))
 
 # So these are 2 different versions of the same manual with nearly identical URLS that state different things.
 
-# str(wavenumbers)
-# wavenumbers
-# typeof(wavenumbers)
-
-# the new("hyperSpec") doesn't accept atomic vectors.
-# wavenumbers <- list(wavenumbers)
-
-# data frame seems accepted by new, but I see all these V characters?
-# wavenumbers <- as.data.frame(wavenumbers)
-wavenumbers
-
-#newmatrix <- t(newmatrix)
-
-#thismatrix <- t(thismatrix)
-
-newmatrix
 spec <- new("hyperSpec", subtracted, NULL, wavenumbers, NULL)
 
 # > spec <- new("hyperSpec", newmatrix, wavenumbers, NULL, NULL)
@@ -130,7 +109,6 @@ spec <- new("hyperSpec", subtracted, NULL, wavenumbers, NULL)
 # So that's not the same. The docs show the order as spc, wavelength, data. The code shows that it should come in as spc, data, wavelength!
 
 # The code actually runs without complaint up to this point. But all it charts is a diagonal line.
-
 
 str(spec)
 plot(spec)
