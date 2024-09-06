@@ -62,21 +62,78 @@ lines(meas_1$sc_sample$wavenumbers, subtracted-meas_1$ab_no_atm_comp$data/7, typ
 #One way to test that is to perform a rubberband baseline correction and see if that makes a similar chart
 # so perform a rubberband correction on the red line.
 # for that I will try to use hyperSpec
+
+# I can't get hyperSpec working. I have some simple data in two clean lists - wavelength and absorbance
+# But after a few days of trying I'm unable to get hyperSpec to make an object out of them.
+
+# The documentation is short and confused. The best plot I can get is not a real plot but just a diagonal line.
+
 require(hyperSpec)
-spec <- new("hyperSpec")
-x <- meas_1$sc_sample$wavenumbers
-initialize(spec, data = subtracted, wavelength = x, labels = NULL)
+wavenumbers <- meas_1$sc_sample$wavenumbers
+# It was a string. Make it a number I guess.
+wavenumbers <- as.numeric(wavenumbers)
+
+thismatrix <- matrix(wavenumbers, nrow = 1, ncol = 1661)
+length(subtracted)
+newmatrix <- rbind(thismatrix, c(subtracted))
+
+#Data_Frame <- data.frame (
+#  wavelengths = c(wavenumbers),
+#  spc = c(subtracted)
+#)
+
+# The docs give two different versions of how you are supposed to create a new hyperSpec object.
+# This is the first, I don't know why they are using an equals sign, it's some sort of documentation shorthand?
+# spc <- new("hyperSpec", spc = spectra.matrix, wavelength = wavelength.vector, data = extra.data)
+# https://r-hyperspec.github.io/hyperSpec/articles/fileio.html#sec:read-mult-files
+
+# this is the second,
+# spc <- new("hyperSpec", spc, wavelength, data, labels)
+# https://r-hyperspec.github.io/hyperSpec/articles/hyperSpec.html#sec:create
+
+# So these are 2 different versions of the same manual with nearly identical URLS that state different things.
+
+# str(wavenumbers)
+# wavenumbers
+# typeof(wavenumbers)
+
+# the new("hyperSpec") doesn't accept atomic vectors.
+# wavenumbers <- list(wavenumbers)
+
+# data frame seems accepted by new, but I see all these V characters?
+# wavenumbers <- as.data.frame(wavenumbers)
+wavenumbers
+
+#newmatrix <- t(newmatrix)
+
+#thismatrix <- t(thismatrix)
+
+newmatrix
+spec <- new("hyperSpec", subtracted, NULL, wavenumbers, NULL)
+
+# > spec <- new("hyperSpec", newmatrix, wavenumbers, NULL, NULL)
+# 
+# Error in if (nrow(data) == 1 && nrow(spc) > 1) data <- data[rep(1, nrow(spc)),  : 
+#                                                               missing value where TRUE/FALSE needed
+#                                                             > spec <- new("hyperSpec", newmatrix, wavenumbers, newmatrix, NULL)
+#                                                             Error in (function (cl, name, valueClass)  : 
+#                                                                         c("assignment of an object of class “matrix” is not valid for @‘wavelength’ in an object of class “hyperSpec”; is(value, \"numeric\") is not TRUE", "assignment of an object of class “array” is not valid for @‘wavelength’ in an object of class “hyperSpec”; is(value, \"numeric\") is not TRUE")
+
+# This looks to me like it is complaining that I'm submitting a matrix for wavelengths. 
+# However, that slot is supposed to be for data, according to the documentation.
+# The code in the github repo shows, 
+# hyperSpec <- function(spc = NULL, data = NULL, wavelength = NULL,
+#                       labels = NULL, gc = hy_get_option("gc"),
+#                       log = "ignored") {
+# initialize(spec, spc = thismatrix)
+
+# So that's not the same. The docs show the order as spc, wavelength, data. The code shows that it should come in as spc, data, wavelength!
+
+# The code actually runs without complaint up to this point. But all it charts is a diagonal line.
 
 
-spc <- read.spe("paracetamol.SPE")
+str(spec)
+plot(spec)
+str(spec)
 baseline <- spc.rubberband(spc)
-
-bgrndSubtracted <- meas_1$sc_sample$data - meas_1$sc_ref$data
-plot(meas_1$sc_sample$wavenumbers, bgrndSubtracted,  type = "l")
-#str(meas_1$fourier_transformation)
-
-#str(spectrum_1)
-#dput(spectrum_1)
-#show(spectrum_1)
-#plot(spectrum_1$wavenumbers, spectrum_1$spec, type = 'l')
 
