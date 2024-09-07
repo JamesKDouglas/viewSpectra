@@ -64,54 +64,26 @@ lines(meas_1$sc_sample$wavenumbers, subtracted-meas_1$ab_no_atm_comp$data/7, typ
 # for that I will try to use hyperSpec
 
 # After a few days of trying I can see that the problem was a glaring mistake that appears twice in the hyperSpec documentation.
-# It mixes up the order of the arguments provided to new when making a spectra object.
+# It mixes up the order of the arguments provided to new() when making a hyperSpec object.
 # I solved this by reading the code on gitHub - good warning I guess that you can't trust the docs and it's better to read the code.
 
 require(hyperSpec)
 wavenumbers <- meas_1$sc_sample$wavenumbers
-# It was a string. Make it a number I guess.
-# wavenumbers <- as.numeric(wavenumbers)
-
-#Data_Frame <- data.frame (
-#  wavelengths = c(wavenumbers),
-#  spc = c(subtracted)
-#)
-
-# The docs give two different versions of how you are supposed to create a new hyperSpec object.
-# This is the first, I don't know why they are using an equals sign, it's some sort of documentation shorthand?
-# spc <- new("hyperSpec", spc = spectra.matrix, wavelength = wavelength.vector, data = extra.data)
-# https://r-hyperspec.github.io/hyperSpec/articles/fileio.html#sec:read-mult-files
-
-# this is the second,
-# spc <- new("hyperSpec", spc, wavelength, data, labels)
-# https://r-hyperspec.github.io/hyperSpec/articles/hyperSpec.html#sec:create
-
-# So these are 2 different versions of the same manual with nearly identical URLS that state different things.
-
-spec <- new("hyperSpec", subtracted, NULL, wavenumbers, NULL)
-
-# > spec <- new("hyperSpec", newmatrix, wavenumbers, NULL, NULL)
-# 
-# Error in if (nrow(data) == 1 && nrow(spc) > 1) data <- data[rep(1, nrow(spc)),  : 
-#                                                               missing value where TRUE/FALSE needed
-#                                                             > spec <- new("hyperSpec", newmatrix, wavenumbers, newmatrix, NULL)
-#                                                             Error in (function (cl, name, valueClass)  : 
-#                                                                         c("assignment of an object of class “matrix” is not valid for @‘wavelength’ in an object of class “hyperSpec”; is(value, \"numeric\") is not TRUE", "assignment of an object of class “array” is not valid for @‘wavelength’ in an object of class “hyperSpec”; is(value, \"numeric\") is not TRUE")
-
-# This looks to me like it is complaining that I'm submitting a matrix for wavelengths. 
-# However, that slot is supposed to be for data, according to the documentation.
-# The code in the github repo shows, 
-# hyperSpec <- function(spc = NULL, data = NULL, wavelength = NULL,
-#                       labels = NULL, gc = hy_get_option("gc"),
-#                       log = "ignored") {
-# initialize(spec, spc = thismatrix)
-
-# So that's not the same. The docs show the order as spc, wavelength, data. The code shows that it should come in as spc, data, wavelength!
-
-# The code actually runs without complaint up to this point. But all it charts is a diagonal line.
+spec <- new("hyperSpec", subtracted, NULL, rev(wavenumbers), NULL)
 
 str(spec)
 plot(spec)
-str(spec)
-baseline <- spc.rubberband(spc)
 
+# I'm using v 0.100.2 
+# You're supposed to initialize objects even though it does work to plot without doing so.
+# baseline fitting is complaining that spec is not a hyperSpec object (I think) so lets try initializing
+
+#initialize(.Object, spc = NULL, data = NULL, wavelength = NULL, labels = NULL)
+#spec2 <- new("hyperSpec")
+#initialize(spec2, spec, NULL, NULL, NULL)
+
+
+bl <- spc.fit.poly(spec, spec)
+str(bl)
+newspec <- spec-bl
+plot(newspec)
