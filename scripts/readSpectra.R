@@ -82,8 +82,8 @@ plot(spec)
 #spec2 <- new("hyperSpec")
 #initialize(spec2, spec, NULL, NULL, NULL)
 
-
-bl <- spc.fit.poly(spec, spec)
+bl <- spc.rubberband(spec)
 str(bl)
-newspec <- spec-bl
-plot(newspec)
+plot(spec)
+plot(spec-bl)
+plot(bl)
