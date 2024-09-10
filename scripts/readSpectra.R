@@ -62,10 +62,7 @@ lines(meas_1$sc_sample$wavenumbers, subtracted-meas_1$ab_no_atm_comp$data/7, typ
 #One way to test that is to perform a rubberband baseline correction and see if that makes a similar chart
 # so perform a rubberband correction on the red line.
 # for that I will try to use hyperSpec
-
-# After a few days of trying I can see that the problem was a glaring mistake that appears twice in the hyperSpec documentation.
-# It mixes up the order of the arguments provided to new() when making a hyperSpec object.
-# I solved this by reading the code on gitHub - good warning I guess that you can't trust the docs and it's better to read the code.
+# I'm using v 0.100.2 
 
 require(hyperSpec)
 wavenumbers <- meas_1$sc_sample$wavenumbers
@@ -74,16 +71,24 @@ spec <- new("hyperSpec", subtracted, NULL, rev(wavenumbers), NULL)
 str(spec)
 plot(spec)
 
-# I'm using v 0.100.2 
-# You're supposed to initialize objects even though it does work to plot without doing so.
-# baseline fitting is complaining that spec is not a hyperSpec object (I think) so lets try initializing
-
-#initialize(.Object, spc = NULL, data = NULL, wavelength = NULL, labels = NULL)
-#spec2 <- new("hyperSpec")
-#initialize(spec2, spec, NULL, NULL, NULL)
 
 bl <- spc.rubberband(spec)
 str(bl)
 plot(spec)
 plot(spec-bl)
 plot(bl)
+
+# I see that a rubberband baseline correction brings the short wavenumber intensities at the end downwards.
+# But the blue line is upwards compared to the red. So, no it's not a rubberband baseline correction.
+
+# this spectra looks like cocaine to me. Lets try to match it to a spectra.
+# The only actual data I can find is a gas phase from NIST. Ok that likely won't match but lets take a look
+
+# I can find papers with spectra published for cocaine hydrochloride but I'll have to take the spectra from an image.
+
+# For the gas phase:
+library("hySpc.read.jdx")
+GPSpecFile <- "/Users/jamesdouglas/ankors/AfterFestival2024/RViewSpectra/GasPhaseCocaineNIST_50-36-2-IR.jdx"
+GPSpec <- read_jdx(GPSpecFile)
+str(GPSpec)
+plot(GPSpec)
