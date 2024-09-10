@@ -92,3 +92,12 @@ GPSpecFile <- "/Users/jamesdouglas/ankors/AfterFestival2024/RViewSpectra/GasPhas
 GPSpec <- read_jdx(GPSpecFile)
 str(GPSpec)
 plot(GPSpec)
+plot(rev(GPSpec@wavelength), GPSpec@data$spc, type = "l")
+
+plot(meas_1$sc_sample$wavenumbers, subtracted, type = "n", xlim = rev(range(meas_1$sc_sample$wavenumbers)), ylim = range(subtracted), 
+     xlab = "X", ylab = "Y", main = "Multiple Lines Plot")
+
+# red for sample-ref, 
+lines(meas_1$sc_sample$wavenumbers, subtracted, type = "l", col = "red")
+lines(GPSpec@wavelength, GPSpec@data$spc, type = "l", col = "blue")
+lines(meas_1$sc_sample$wavenumbers, subtracted-meas_1$ab_no_atm_comp$data/7, type = "l", col = "black")
